@@ -105,6 +105,7 @@ class OrigamiStep {
     required this.instruction,
     required this.tip,
     required this.seconds,
+    required this.imageKey,
   });
 
   final int id;
@@ -114,6 +115,7 @@ class OrigamiStep {
   final String instruction;
   final String tip;
   final int seconds;
+  final String imageKey;
 
   Map<String, Object?> toMap() {
     return {
@@ -124,6 +126,7 @@ class OrigamiStep {
       'instruction': instruction,
       'tip': tip,
       'seconds': seconds,
+      'imageKey': imageKey,
     };
   }
 
@@ -136,6 +139,7 @@ class OrigamiStep {
       instruction: map['instruction'] as String,
       tip: map['tip'] as String,
       seconds: map['seconds'] as int,
+      imageKey: (map['imageKey'] as String?) ?? '',
     );
   }
 }
