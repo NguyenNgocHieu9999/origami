@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -255,33 +254,48 @@ class HeaderPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F3A3D),
-        borderRadius: BorderRadius.circular(8),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1B4332).withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          )
+        ],
       ),
       child: Row(
         children: [
-          Avatar(user: user, radius: 28),
-          const SizedBox(width: 14),
+          Avatar(user: user, radius: 32),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user == null ? 'Origami Mentor' : 'Xin chào, ${user!.name}',
+                  user == null ? 'Origami Mentor' : 'Xin chào, ${user!.name} 👋',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   user?.email ??
                       'Theo dõi từng nếp gấp, lưu thành quả và hỏi AI khi bị kẹt.',
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                  ).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.82),
+                    height: 1.3,
+                  ),
                 ),
               ],
             ),
@@ -306,21 +320,41 @@ class StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
+      elevation: 0,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: const Color(0xFF4F8A8B)),
-            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: theme.colorScheme.primary, size: 20),
+            ),
+            const SizedBox(height: 14),
             Text(
               value,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: theme.colorScheme.primary,
+                letterSpacing: -0.5,
+              ),
             ),
-            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.black54,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -340,39 +374,55 @@ class RecommendationPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              OrigamiArt(model: model, size: 88),
-              const SizedBox(width: 14),
+              OrigamiArt(model: model, size: 84),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Gợi ý tiếp theo',
-                      style: Theme.of(context).textTheme.labelLarge,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.secondary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'GỢI Ý TIẾP THEO',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.secondary,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Text(
                       model.title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${model.category} • ${model.minutes} phút • Độ khó ${model.difficulty}/4',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.black54,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right),
+              Icon(Icons.chevron_right, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
             ],
           ),
         ),
@@ -395,6 +445,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   @override
   Widget build(BuildContext context) {
     final state = context.appState;
+    final theme = Theme.of(context);
     final categories = [
       'Tất cả',
       ...state.models.map((item) => item.category).toSet(),
@@ -409,36 +460,52 @@ class _CatalogScreenState extends State<CatalogScreen> {
     }).toList();
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       children: [
         TextField(
-          decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.search),
-            labelText: 'Tìm kiểu gấp giấy',
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+            labelText: 'Tìm kiểu gấp giấy...',
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500),
           ),
           onChanged: (value) => setState(() => _query = value),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         SizedBox(
-          height: 42,
+          height: 38,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: categories.length,
             separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final category = categories[index];
+              final isSelected = _category == category;
               return ChoiceChip(
                 label: Text(category),
-                selected: _category == category,
+                selected: isSelected,
                 onSelected: (_) => setState(() => _category = category),
+                selectedColor: theme.colorScheme.primary,
+                backgroundColor: Colors.white,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black87,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 13,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected ? Colors.transparent : Colors.black.withValues(alpha: 0.08),
+                  ),
+                ),
+                showCheckmark: false,
               );
             },
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         for (final model in filtered) ...[
           ModelCard(model: model),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
         ],
       ],
     );
@@ -453,6 +520,7 @@ class ModelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.appState;
+    final theme = Theme.of(context);
     return FutureBuilder<List<OrigamiStep>>(
       future: state.stepsFor(model.id),
       builder: (context, snapshot) {
@@ -461,7 +529,7 @@ class ModelCard extends StatelessWidget {
         final progress = steps.isEmpty ? 0.0 : completed / steps.length;
         return Card(
           child: InkWell(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
             onTap: () async {
               await state.selectModel(model);
               if (context.mounted) {
@@ -473,11 +541,11 @@ class ModelCard extends StatelessWidget {
               }
             },
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
               child: Row(
                 children: [
-                  OrigamiArt(model: model, size: 76),
-                  const SizedBox(width: 12),
+                  OrigamiArt(model: model, size: 80),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,33 +555,64 @@ class ModelCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 model.title,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w700),
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.2,
+                                ),
                               ),
                             ),
                             IconButton(
-                              tooltip: model.isFavorite
-                                  ? 'Bỏ yêu thích'
-                                  : 'Yêu thích',
+                              visualDensity: VisualDensity.compact,
+                              tooltip: model.isFavorite ? 'Bỏ yêu thích' : 'Yêu thích',
                               icon: Icon(
-                                model.isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
+                                model.isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: model.isFavorite ? Colors.redAccent : Colors.black38,
+                                size: 20,
                               ),
                               onPressed: () => state.toggleFavorite(model),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 4),
                         Text(
                           model.description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.black87,
+                            fontSize: 13,
+                            height: 1.3,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 6,
+                            backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.08),
+                            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        LinearProgressIndicator(value: progress),
-                        const SizedBox(height: 6),
-                        Text(
-                          '$completed/${steps.length} bước • ${model.paperSize} • Độ khó ${model.difficulty}/4',
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '$completed/${steps.length} bước',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                            Text(
+                              '${model.paperSize} • Độ khó ${model.difficulty}/4',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -536,13 +635,14 @@ class OrigamiDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.appState;
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(model.title),
         actions: [
           IconButton(
-            tooltip: 'Hỏi AI',
-            icon: const Icon(Icons.auto_awesome_outlined),
+            tooltip: 'Hỏi AI Coach',
+            icon: const Icon(Icons.auto_awesome),
             onPressed: () {
               state.selectModel(model);
               Navigator.of(
@@ -564,41 +664,72 @@ class OrigamiDetailScreen extends StatelessWidget {
               ? 0.0
               : completed.length / steps.length;
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  OrigamiArt(model: model, size: 110),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          model.description,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OrigamiArt(model: model, size: 96),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Chip(label: Text('${model.minutes} phút')),
-                            Chip(label: Text(model.paperSize)),
-                            Chip(label: Text('Độ khó ${model.difficulty}/4')),
+                            Text(
+                              model.description,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.black87,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                _metaBadge(context, Icons.access_time, '${model.minutes} phút'),
+                                _metaBadge(context, Icons.straighten, model.paperSize),
+                                _metaBadge(context, Icons.bar_chart, 'Độ khó ${model.difficulty}/4'),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Tiến độ gấp giấy',
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '${completed.length}/${steps.length} bước',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              LinearProgressIndicator(value: progress, minHeight: 8),
               const SizedBox(height: 8),
-              Text('${completed.length}/${steps.length} bước đã hoàn thành'),
-              const SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 10,
+                  backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.08),
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                ),
+              ),
+              const SizedBox(height: 20),
               for (final step in steps)
                 StepTile(
                   step: step,
@@ -606,9 +737,9 @@ class OrigamiDetailScreen extends StatelessWidget {
                   onChanged: (value) =>
                       state.toggleStep(model, step, value ?? false),
                 ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               FilledButton.icon(
-                icon: const Icon(Icons.add_task),
+                icon: const Icon(Icons.check_circle_outline),
                 label: const Text('Ghi nhận thành quả'),
                 onPressed: () {
                   Navigator.of(context).push(
@@ -618,9 +749,36 @@ class OrigamiDetailScreen extends StatelessWidget {
                   );
                 },
               ),
+              const SizedBox(height: 10),
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _metaBadge(BuildContext context, IconData icon, String label) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: theme.colorScheme.primary),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -640,23 +798,166 @@ class StepTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: CheckboxListTile(
-        value: completed,
-        onChanged: onChanged,
-        controlAffinity: ListTileControlAffinity.leading,
-        title: Text('Bước ${step.stepOrder}: ${step.title}'),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Column(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: completed ? theme.colorScheme.primary.withValues(alpha: 0.02) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: completed ? theme.colorScheme.primary.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
+          width: completed ? 1.5 : 1,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => onChanged(!completed),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(step.instruction),
-              const SizedBox(height: 6),
-              Text(
-                'Mẹo: ${step.tip}',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(
+                  completed ? Icons.check_circle : Icons.radio_button_unchecked,
+                  color: completed ? theme.colorScheme.primary : Colors.black26,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bước ${step.stepOrder}: ${step.title}',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: completed ? theme.colorScheme.primary : Colors.black87,
+                        letterSpacing: -0.1,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      step.instruction,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: step.imageKey.isNotEmpty
+                              ? Image.asset(
+                                  'assets/images/${step.imageKey}.png',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/step_${step.stepOrder}.png',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          color: theme.colorScheme.primary.withValues(alpha: 0.04),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.photo_outlined,
+                                                  color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                                                  size: 32,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  'Sơ đồ bước ${step.stepOrder}',
+                                                  style: theme.textTheme.bodySmall?.copyWith(
+                                                    color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                )
+                              : Image.asset(
+                                  'assets/images/step_${step.stepOrder}.png',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: theme.colorScheme.primary.withValues(alpha: 0.04),
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.photo_outlined,
+                                              color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                                              size: 32,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Sơ đồ bước ${step.stepOrder}',
+                                              style: theme.textTheme.bodySmall?.copyWith(
+                                                color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.secondary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline,
+                            size: 16,
+                            color: theme.colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Mẹo: ${step.tip}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.secondary,
+                                fontWeight: FontWeight.w600,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -672,6 +973,7 @@ class JournalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.appState;
+    final theme = Theme.of(context);
     final entries = state.achievements;
     return Scaffold(
       body: entries.isEmpty
@@ -687,15 +989,18 @@ class JournalScreen extends StatelessWidget {
                 ),
               ),
             )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (final entry in entries) AchievementCard(entry: entry),
-              ],
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              itemCount: entries.length,
+              itemBuilder: (context, index) {
+                return AchievementCard(entry: entries[index]);
+              },
             ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label: const Text('Nhật ký'),
+        label: const Text('Thêm nhật ký', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const AchievementFormScreen()),
         ),
@@ -712,10 +1017,11 @@ class AchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.appState;
+    final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -724,14 +1030,17 @@ class AchievementCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     entry.modelTitle,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.primary,
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ),
                 IconButton(
+                  visualDensity: VisualDensity.compact,
                   tooltip: 'Sửa',
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: Icon(Icons.edit_outlined, color: theme.colorScheme.primary.withValues(alpha: 0.7), size: 20),
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => AchievementFormScreen(entry: entry),
@@ -739,8 +1048,9 @@ class AchievementCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  visualDensity: VisualDensity.compact,
                   tooltip: 'Xóa',
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                   onPressed: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
@@ -756,6 +1066,9 @@ class AchievementCard extends StatelessWidget {
                           ),
                           FilledButton(
                             onPressed: () => Navigator.of(context).pop(true),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                            ),
                             child: const Text('Xóa'),
                           ),
                         ],
@@ -768,25 +1081,86 @@ class AchievementCard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 8),
             Wrap(
-              spacing: 8,
+              spacing: 6,
+              runSpacing: 6,
               children: [
-                Chip(label: Text('${entry.rating} sao')),
-                Chip(label: Text('${entry.minutesSpent} phút')),
-                Chip(label: Text(_dateText(entry.completedAt))),
+                _badge(context, Icons.star, '${entry.rating} sao', const Color(0xFFE8C547)),
+                _badge(context, Icons.access_time, '${entry.minutesSpent} phút', theme.colorScheme.primary),
+                _badge(context, Icons.calendar_today, _dateText(entry.completedAt), Colors.grey),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(entry.note),
-            if (entry.photoPath != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Ảnh local: ${entry.photoPath}',
-                style: Theme.of(context).textTheme.bodySmall,
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.02),
+                borderRadius: BorderRadius.circular(10),
+                border: Border(
+                  left: BorderSide(
+                    color: theme.colorScheme.secondary,
+                    width: 3.5,
+                  ),
+                ),
+              ),
+              child: Text(
+                entry.note,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: Colors.black87,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            if (entry.photoPath != null && entry.photoPath!.trim().isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.image_outlined, size: 14, color: Colors.black45),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Ảnh local: ${entry.photoPath}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.black54,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _badge(BuildContext context, IconData icon, String label, Color tintColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: tintColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: tintColor),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: tintColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -866,7 +1240,14 @@ class _AchievementFormScreenState extends State<AchievementFormScreen> {
               ],
               onChanged: _isEditing
                   ? null
-                  : (value) => setState(() => _model = value),
+                  : (value) {
+                      setState(() {
+                        _model = value;
+                        if (value != null) {
+                          _minutesController.text = '${value.minutes}';
+                        }
+                      });
+                    },
               validator: (value) => value == null ? 'Chọn mẫu gấp' : null,
             ),
             const SizedBox(height: 12),
@@ -981,9 +1362,11 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
   Widget build(BuildContext context) {
     final state = context.appState;
     final selected = state.selectedModel;
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
+    return Material(
+      color: Colors.transparent,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
         if (selected != null)
           Card(
             child: Padding(
@@ -1074,7 +1457,8 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
             context,
           ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
         ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1111,28 +1495,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final state = context.appState;
     final user = state.currentUser;
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text('Hồ sơ cá nhân')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Avatar(user: user, radius: 34),
-                  const SizedBox(width: 14),
+                  Avatar(user: user, radius: 36),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user?.name ?? 'Khách',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                          user?.name ?? 'Người dùng Khách',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
                         ),
-                        Text(user?.email ?? 'Chưa đăng nhập Gmail'),
+                        const SizedBox(height: 2),
+                        Text(
+                          user?.email ?? 'Đăng nhập Gmail để đồng bộ hồ sơ',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.black54,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1140,14 +1533,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           if (user == null) ...[
             FilledButton.icon(
               icon: const Icon(Icons.login),
               label: const Text('Đăng nhập bằng Gmail'),
               onPressed: state.signInWithGoogle,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             OutlinedButton.icon(
               icon: const Icon(Icons.school_outlined),
               label: const Text('Dùng tài khoản demo Gmail'),
@@ -1156,36 +1549,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ] else
             FilledButton.tonalIcon(
               icon: const Icon(Icons.logout),
-              label: const Text('Đăng xuất'),
+              label: const Text('Đăng xuất tài khoản'),
               onPressed: state.signOut,
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.error.withValues(alpha: 0.08),
+                foregroundColor: theme.colorScheme.error,
+              ),
             ),
           if (state.errorMessage != null) ...[
             const SizedBox(height: 12),
             Text(
               state.errorMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+              style: TextStyle(color: theme.colorScheme.error, fontSize: 13),
+              textAlign: TextAlign.center,
             ),
           ],
-          const SizedBox(height: 20),
+          const SizedBox(height: 28),
           Text(
-            'AI hướng dẫn',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            'Trợ lý học tập AI Coach',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: theme.colorScheme.primary,
+            ),
           ),
           const SizedBox(height: 8),
+          Text(
+            'Cấu hình Gemini API key của bạn để sử dụng AI hướng dẫn trực tuyến. Khóa được lưu hoàn toàn bảo mật trên máy cục bộ.',
+            style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54, height: 1.3),
+          ),
+          const SizedBox(height: 14),
           TextField(
             controller: _apiKeyController,
             obscureText: true,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Gemini API key',
-              prefixIcon: Icon(Icons.key_outlined),
+              prefixIcon: Icon(Icons.key, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           FilledButton.icon(
             icon: const Icon(Icons.save_outlined),
-            label: const Text('Lưu API key local'),
+            label: const Text('Lưu API key cục bộ'),
             onPressed: () async {
               await state.saveApiKey(_apiKeyController.text);
               if (context.mounted) {
@@ -1195,6 +1599,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 20),
           const RuleHint(),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.refresh_outlined),
+            label: const Text('Reset Database (Cài lại dữ liệu gốc)'),
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Cài lại Cơ sở dữ liệu?'),
+                  content: const Text(
+                    'Thao tác này sẽ xóa sạch toàn bộ tiến độ, thành quả đã lưu và nạp lại 7 mẫu gấp giấy ban đầu.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                      child: const Text('Xác nhận'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await state.resetDatabase();
+                if (context.mounted) {
+                  _showSnack(context, 'Đã cài lại dữ liệu gốc thành công!');
+                }
+              }
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.redAccent,
+              side: const BorderSide(color: Colors.redAccent, width: 1.2),
+            ),
+          ),
         ],
       ),
     );
@@ -1248,16 +1691,91 @@ class BadgeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(
-          badge.unlocked ? Icons.verified : Icons.lock_outline,
-          color: badge.unlocked ? const Color(0xFF4F8A8B) : Colors.grey,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: badge.unlocked
+                    ? const LinearGradient(
+                        colors: [Color(0xFFD4A373), Color(0xFFE3D5CA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : LinearGradient(
+                        colors: [Colors.grey.shade300, Colors.grey.shade400],
+                      ),
+                boxShadow: badge.unlocked
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFFD4A373).withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        )
+                      ]
+                    : null,
+              ),
+              child: Icon(
+                badge.unlocked ? Icons.emoji_events : Icons.lock_outline,
+                color: badge.unlocked ? Colors.white : Colors.black38,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    badge.title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: badge.unlocked ? theme.colorScheme.primary : Colors.black54,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    badge.description,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: badge.unlocked
+                    ? theme.colorScheme.primary.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: badge.unlocked
+                      ? theme.colorScheme.primary.withValues(alpha: 0.2)
+                      : Colors.black12,
+                ),
+              ),
+              child: Text(
+                badge.unlocked ? 'Đã nhận' : 'Khóa',
+                style: TextStyle(
+                  color: badge.unlocked ? theme.colorScheme.primary : Colors.black38,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
         ),
-        title: Text(badge.title),
-        subtitle: Text(badge.description),
-        trailing: Text(badge.unlocked ? 'Mở' : 'Khóa'),
       ),
     );
   }
@@ -1376,231 +1894,29 @@ class OrigamiArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color(int.parse('FF${model.colorHex}', radix: 16));
     return Semantics(
       label: 'Hình minh họa ${model.title}',
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: CustomPaint(
-          painter: OrigamiPainter(color: color, imageKey: model.imageKey),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.asset(
+          'assets/images/${model.imageKey}.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.broken_image, color: Colors.grey),
+            );
+          },
         ),
       ),
     );
-  }
-}
-
-class OrigamiPainter extends CustomPainter {
-  OrigamiPainter({required this.color, required this.imageKey});
-
-  final Color color;
-  final String imageKey;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color;
-    final line = Paint()
-      ..color = Colors.white.withValues(alpha: 0.76)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(1.4, size.width * 0.025);
-    final shadow = Paint()..color = Colors.black.withValues(alpha: 0.08);
-    final rect = Offset.zero & size;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-      Paint()..color = color.withValues(alpha: 0.12),
-    );
-
-    switch (imageKey) {
-      case 'boat':
-        _boat(canvas, size, paint, line, shadow);
-        break;
-      case 'tulip':
-        _tulip(canvas, size, paint, line, shadow);
-        break;
-      case 'frog':
-        _frog(canvas, size, paint, line, shadow);
-        break;
-      case 'box':
-        _box(canvas, size, paint, line, shadow);
-        break;
-      case 'dragon':
-        _dragon(canvas, size, paint, line, shadow);
-        break;
-      default:
-        _crane(canvas, size, paint, line, shadow);
-    }
-  }
-
-  void _crane(Canvas canvas, Size s, Paint paint, Paint line, Paint shadow) {
-    final path = Path()
-      ..moveTo(s.width * .12, s.height * .55)
-      ..lineTo(s.width * .44, s.height * .28)
-      ..lineTo(s.width * .56, s.height * .55)
-      ..lineTo(s.width * .88, s.height * .35)
-      ..lineTo(s.width * .62, s.height * .72)
-      ..lineTo(s.width * .48, s.height * .60)
-      ..lineTo(s.width * .30, s.height * .78)
-      ..close();
-    canvas.drawPath(path.shift(Offset(0, s.height * .03)), shadow);
-    canvas.drawPath(path, paint);
-    canvas.drawLine(
-      Offset(s.width * .44, s.height * .28),
-      Offset(s.width * .48, s.height * .60),
-      line,
-    );
-    canvas.drawLine(
-      Offset(s.width * .56, s.height * .55),
-      Offset(s.width * .88, s.height * .35),
-      line,
-    );
-  }
-
-  void _boat(Canvas canvas, Size s, Paint paint, Paint line, Paint shadow) {
-    final hull = Path()
-      ..moveTo(s.width * .12, s.height * .58)
-      ..lineTo(s.width * .88, s.height * .58)
-      ..lineTo(s.width * .68, s.height * .78)
-      ..lineTo(s.width * .30, s.height * .78)
-      ..close();
-    final sail = Path()
-      ..moveTo(s.width * .48, s.height * .18)
-      ..lineTo(s.width * .48, s.height * .58)
-      ..lineTo(s.width * .23, s.height * .58)
-      ..close();
-    canvas.drawPath(hull.shift(Offset(0, s.height * .03)), shadow);
-    canvas.drawPath(hull, paint);
-    canvas.drawPath(sail, paint..color = color.withValues(alpha: .82));
-    canvas.drawLine(
-      Offset(s.width * .48, s.height * .18),
-      Offset(s.width * .48, s.height * .78),
-      line,
-    );
-  }
-
-  void _tulip(Canvas canvas, Size s, Paint paint, Paint line, Paint shadow) {
-    final flower = Path()
-      ..moveTo(s.width * .50, s.height * .18)
-      ..lineTo(s.width * .72, s.height * .42)
-      ..quadraticBezierTo(
-        s.width * .62,
-        s.height * .66,
-        s.width * .50,
-        s.height * .62,
-      )
-      ..quadraticBezierTo(
-        s.width * .38,
-        s.height * .66,
-        s.width * .28,
-        s.height * .42,
-      )
-      ..close();
-    canvas.drawPath(flower.shift(Offset(0, s.height * .03)), shadow);
-    canvas.drawPath(flower, paint);
-    canvas.drawLine(
-      Offset(s.width * .50, s.height * .62),
-      Offset(s.width * .50, s.height * .86),
-      Paint()
-        ..color = const Color(0xFF4E7D42)
-        ..strokeWidth = s.width * .06,
-    );
-    canvas.drawLine(
-      Offset(s.width * .50, s.height * .20),
-      Offset(s.width * .50, s.height * .62),
-      line,
-    );
-  }
-
-  void _frog(Canvas canvas, Size s, Paint paint, Paint line, Paint shadow) {
-    final body = Path()
-      ..moveTo(s.width * .20, s.height * .46)
-      ..lineTo(s.width * .42, s.height * .24)
-      ..lineTo(s.width * .80, s.height * .46)
-      ..lineTo(s.width * .66, s.height * .76)
-      ..lineTo(s.width * .34, s.height * .76)
-      ..close();
-    canvas.drawPath(body.shift(Offset(0, s.height * .03)), shadow);
-    canvas.drawPath(body, paint);
-    canvas.drawCircle(
-      Offset(s.width * .38, s.height * .42),
-      s.width * .035,
-      Paint()..color = Colors.white,
-    );
-    canvas.drawCircle(
-      Offset(s.width * .62, s.height * .42),
-      s.width * .035,
-      Paint()..color = Colors.white,
-    );
-    canvas.drawLine(
-      Offset(s.width * .34, s.height * .76),
-      Offset(s.width * .20, s.height * .86),
-      line,
-    );
-    canvas.drawLine(
-      Offset(s.width * .66, s.height * .76),
-      Offset(s.width * .82, s.height * .86),
-      line,
-    );
-  }
-
-  void _box(Canvas canvas, Size s, Paint paint, Paint line, Paint shadow) {
-    final top = Path()
-      ..moveTo(s.width * .26, s.height * .34)
-      ..lineTo(s.width * .50, s.height * .20)
-      ..lineTo(s.width * .74, s.height * .34)
-      ..lineTo(s.width * .50, s.height * .48)
-      ..close();
-    final left = Path()
-      ..moveTo(s.width * .26, s.height * .34)
-      ..lineTo(s.width * .50, s.height * .48)
-      ..lineTo(s.width * .50, s.height * .78)
-      ..lineTo(s.width * .26, s.height * .62)
-      ..close();
-    final right = Path()
-      ..moveTo(s.width * .74, s.height * .34)
-      ..lineTo(s.width * .50, s.height * .48)
-      ..lineTo(s.width * .50, s.height * .78)
-      ..lineTo(s.width * .74, s.height * .62)
-      ..close();
-    canvas.drawPath(left.shift(Offset(0, s.height * .03)), shadow);
-    canvas.drawPath(top, paint..color = color.withValues(alpha: .92));
-    canvas.drawPath(left, paint..color = color.withValues(alpha: .80));
-    canvas.drawPath(right, paint..color = color);
-    canvas.drawLine(
-      Offset(s.width * .50, s.height * .48),
-      Offset(s.width * .50, s.height * .78),
-      line,
-    );
-  }
-
-  void _dragon(Canvas canvas, Size s, Paint paint, Paint line, Paint shadow) {
-    final path = Path()
-      ..moveTo(s.width * .12, s.height * .68)
-      ..lineTo(s.width * .34, s.height * .34)
-      ..lineTo(s.width * .48, s.height * .56)
-      ..lineTo(s.width * .60, s.height * .22)
-      ..lineTo(s.width * .88, s.height * .44)
-      ..lineTo(s.width * .66, s.height * .50)
-      ..lineTo(s.width * .76, s.height * .82)
-      ..lineTo(s.width * .48, s.height * .62)
-      ..lineTo(s.width * .30, s.height * .82)
-      ..close();
-    canvas.drawPath(path.shift(Offset(0, s.height * .03)), shadow);
-    canvas.drawPath(path, paint);
-    canvas.drawLine(
-      Offset(s.width * .34, s.height * .34),
-      Offset(s.width * .48, s.height * .62),
-      line,
-    );
-    canvas.drawLine(
-      Offset(s.width * .60, s.height * .22),
-      Offset(s.width * .66, s.height * .50),
-      line,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant OrigamiPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.imageKey != imageKey;
   }
 }
 
