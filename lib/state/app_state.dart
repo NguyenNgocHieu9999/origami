@@ -14,7 +14,13 @@ class AppState extends ChangeNotifier {
   }) : _database = database ?? OrigamiDatabase.instance,
        _aiCoachService = aiCoachService ?? const AiCoachService(),
        _googleSignIn =
-           googleSignIn ?? GoogleSignIn(scopes: const ['email', 'profile']);
+           googleSignIn ??
+           GoogleSignIn(
+             scopes: const ['email', 'profile'],
+             clientId: kIsWeb
+                 ? '1098757259381-5dklrb1gi164aiq39etflrkkh216te5g.apps.googleusercontent.com'
+                 : null,
+           );
 
   final OrigamiDatabase _database;
   final AiCoachService _aiCoachService;
@@ -91,7 +97,7 @@ class AppState extends ChangeNotifier {
         selectedModel;
     notifyListeners();
   }
-
+ 
   Future<void> toggleStep(
     OrigamiModel model,
     OrigamiStep step,
@@ -125,11 +131,23 @@ class AppState extends ChangeNotifier {
         message: 'Rating tối thiểu là 3 sao để được tính hoàn thành.',
       );
     }
-    if (model.difficulty >= 3 && completed.length < steps.length) {
-      return const CompletionRuleResult(
-        allowed: false,
-        message: 'Mẫu khó cần hoàn tất toàn bộ checkpoint theo đúng thứ tự.',
-      );
+    if (model.difficulty >= 3) {
+      final completionTimes = {
+        for (final cs in completedSteps)
+          if (cs.modelId == model.id) cs.stepId: cs.completedAt
+      };
+      for (int i = 0; i < steps.length - 1; i++) {
+        final currentStepTime = completionTimes[steps[i].id];
+        final nextStepTime = completionTimes[steps[i + 1].id];
+        if (currentStepTime != null &&
+            nextStepTime != null &&
+            currentStepTime.isAfter(nextStepTime)) {
+          return const CompletionRuleResult(
+            allowed: false,
+            message: 'Mẫu khó cần hoàn tất toàn bộ checkpoint theo đúng thứ tự.',
+          );
+        }
+      }
     }
     return const CompletionRuleResult(
       allowed: true,
@@ -322,5 +340,23 @@ class AppState extends ChangeNotifier {
     await _database.clearUser();
     currentUser = null;
     notifyListeners();
+  }
+
+  Future<void> resetDatabase() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      await _database.resetDatabase();
+      models = await _database.getModels();
+      completedSteps = await _database.getCompletedSteps();
+      achievements = await _database.getAchievements();
+      selectedModel = models.firstOrNull;
+      errorMessage = null;
+    } catch (error) {
+      errorMessage = 'Không reset được dữ liệu: $error';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }
