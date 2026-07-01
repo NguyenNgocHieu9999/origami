@@ -21,6 +21,7 @@ class OrigamiMentorApp extends StatelessWidget {
       notifier: state,
       child: AnimatedBuilder(
         animation: state,
+
         builder: (context, _) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -28,24 +29,25 @@ class OrigamiMentorApp extends StatelessWidget {
             theme: ThemeData(
               useMaterial3: true,
               colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF1B4332),
-                primary: const Color(0xFF1B4332),
-                secondary: const Color(0xFFD4A373),
-                tertiary: const Color(0xFF40916C),
+                seedColor: const Color(0xFF0F3A20),
+                primary: const Color(0xFF0F3A20),
+                secondary: const Color(0xFFE5A93B),
+                tertiary: const Color(0xFF2E6F40),
                 surface: const Color(0xFFFFFFFF),
                 error: const Color(0xFFBA1A1A),
                 brightness: Brightness.light,
               ),
-              scaffoldBackgroundColor: const Color(0xFFFAF9F6),
+              scaffoldBackgroundColor: const Color(0xFFE2EFE7),
               appBarTheme: const AppBarTheme(
-                backgroundColor: Color(0xFFFAF9F6),
+                backgroundColor: Color(0xFFE2EFE7),
                 elevation: 0,
                 centerTitle: true,
                 scrolledUnderElevation: 0,
                 titleTextStyle: TextStyle(
-                  color: Color(0xFF1B4332),
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F3A20),
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                 ),
               ),
               cardTheme: CardThemeData(
@@ -53,45 +55,58 @@ class OrigamiMentorApp extends StatelessWidget {
                 color: Colors.white,
                 margin: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                  side: BorderSide(color: Colors.black.withValues(alpha: 0.05), width: 1),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  side: BorderSide(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    width: 0.8,
+                  ),
                 ),
               ),
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
                 border: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  borderSide: BorderSide(
+                    color: Colors.black.withValues(alpha: 0.08),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  borderSide: BorderSide(
+                    color: Colors.black.withValues(alpha: 0.04),
+                  ),
                 ),
                 focusedBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Color(0xFF1B4332), width: 1.5),
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  borderSide: BorderSide(color: Color(0xFF0F3A20), width: 1.8),
                 ),
               ),
               navigationBarTheme: NavigationBarThemeData(
                 backgroundColor: const Color(0xFFFFFFFF),
-                elevation: 8,
-                indicatorColor: const Color(0xFFD8F3DC),
+                elevation: 12,
+                indicatorColor: const Color(0xFFE2EDE7),
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                height: 72,
+                height: 76,
                 iconTheme: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
-                    return const IconThemeData(color: Color(0xFF1B4332), size: 24);
+                    return const IconThemeData(
+                      color: Color(0xFF0F3A20),
+                      size: 26,
+                    );
                   }
-                  return const IconThemeData(color: Colors.black54, size: 24);
+                  return const IconThemeData(color: Colors.black45, size: 24);
                 }),
                 labelTextStyle: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
                     return const TextStyle(
-                      color: Color(0xFF1B4332),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                      color: Color(0xFF0F3A20),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12.5,
                     );
                   }
                   return const TextStyle(
@@ -103,28 +118,44 @@ class OrigamiMentorApp extends StatelessWidget {
               ),
               filledButtonTheme: FilledButtonThemeData(
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B4332),
+                  backgroundColor: const Color(0xFF0F3A20),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
                   ),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
               ),
               outlinedButtonTheme: OutlinedButtonThemeData(
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1B4332),
-                  side: const BorderSide(color: Color(0xFF1B4332), width: 1.2),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  foregroundColor: const Color(0xFF0F3A20),
+                  side: const BorderSide(color: Color(0xFF0F3A20), width: 1.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
                   ),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
-            home: state.isLoading ? const LoadingScreen() : const AppShell(),
+            home: state.isLoading
+                ? const LoadingScreen()
+                : (state.showWelcome
+                      ? const WelcomeScreen()
+                      : const AppShell()),
           );
         },
       ),

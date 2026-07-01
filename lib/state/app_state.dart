@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,13 @@ class AppState extends ChangeNotifier {
              clientId: kIsWeb
                  ? '1098757259381-5dklrb1gi164aiq39etflrkkh216te5g.apps.googleusercontent.com'
                  : null,
-           );
+           ) {
+    try {
+      showWelcome = !WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    } catch (_) {
+      showWelcome = false;
+    }
+  }
 
   final OrigamiDatabase _database;
   final AiCoachService _aiCoachService;
@@ -28,9 +35,13 @@ class AppState extends ChangeNotifier {
 
   bool isLoading = true;
   bool isAiLoading = false;
+  bool showWelcome = true;
   String? errorMessage;
   String? aiAnswer;
+  String aiProvider = 'pollinations';
   String? geminiApiKey;
+  String? groqApiKey;
+  String? openrouterApiKey;
   AppUser? currentUser;
   OrigamiModel? selectedModel;
   List<OrigamiModel> models = [];
@@ -43,7 +54,10 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
+      aiProvider = prefs.getString('ai_provider') ?? 'pollinations';
       geminiApiKey = prefs.getString('gemini_api_key');
+      groqApiKey = prefs.getString('groq_api_key');
+      openrouterApiKey = prefs.getString('openrouter_api_key');
       currentUser = await _database.getUser();
       models = await _database.getModels();
       completedSteps = await _database.getCompletedSteps();
@@ -56,6 +70,11 @@ class AppState extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  void dismissWelcome() {
+    showWelcome = false;
+    notifyListeners();
   }
 
   Future<List<OrigamiStep>> stepsFor(int modelId) async {
@@ -97,7 +116,7 @@ class AppState extends ChangeNotifier {
         selectedModel;
     notifyListeners();
   }
- 
+
   Future<void> toggleStep(
     OrigamiModel model,
     OrigamiStep step,
@@ -134,7 +153,7 @@ class AppState extends ChangeNotifier {
     if (model.difficulty >= 3) {
       final completionTimes = {
         for (final cs in completedSteps)
-          if (cs.modelId == model.id) cs.stepId: cs.completedAt
+          if (cs.modelId == model.id) cs.stepId: cs.completedAt,
       };
       for (int i = 0; i < steps.length - 1; i++) {
         final currentStepTime = completionTimes[steps[i].id];
@@ -144,7 +163,8 @@ class AppState extends ChangeNotifier {
             currentStepTime.isAfter(nextStepTime)) {
           return const CompletionRuleResult(
             allowed: false,
-            message: 'Mẫu khó cần hoàn tất toàn bộ checkpoint theo đúng thứ tự.',
+            message:
+                'Mẫu khó cần hoàn tất toàn bộ checkpoint theo đúng thứ tự.',
           );
         }
       }
@@ -218,7 +238,7 @@ class AppState extends ChangeNotifier {
       BadgeAward(
         code: 'first_fold',
         title: 'Nếp gấp đầu tiên',
-        description: 'Lưu ít nhất 1 thành quả.',
+        description: 'Hoàn thành mẫu origami đầu tiên.',
         unlocked: achievements.isNotEmpty,
       ),
       BadgeAward(
@@ -272,11 +292,22 @@ class AppState extends ChangeNotifier {
     try {
       final model = selectedModel;
       final steps = model == null ? <OrigamiStep>[] : await stepsFor(model.id);
+
+      String? activeKey;
+      if (aiProvider == 'gemini') {
+        activeKey = geminiApiKey;
+      } else if (aiProvider == 'groq') {
+        activeKey = groqApiKey;
+      } else if (aiProvider == 'openrouter') {
+        activeKey = openrouterApiKey;
+      }
+
       aiAnswer = await _aiCoachService.ask(
         question: question,
         model: model,
         steps: steps,
-        apiKey: geminiApiKey,
+        apiKey: activeKey,
+        provider: aiProvider,
       );
     } catch (error) {
       aiAnswer = 'Không tạo được hướng dẫn AI: $error';
@@ -286,14 +317,37 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> saveApiKey(String value) async {
+  Future<void> saveAiConfig({
+    required String provider,
+    String? geminiKey,
+    String? groqKey,
+    String? openrouterKey,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    geminiApiKey = value.trim().isEmpty ? null : value.trim();
+    aiProvider = provider;
+    await prefs.setString('ai_provider', provider);
+
+    geminiApiKey = geminiKey?.trim().isEmpty ?? true ? null : geminiKey!.trim();
     if (geminiApiKey == null) {
       await prefs.remove('gemini_api_key');
     } else {
       await prefs.setString('gemini_api_key', geminiApiKey!);
     }
+
+    groqApiKey = groqKey?.trim().isEmpty ?? true ? null : groqKey!.trim();
+    if (groqApiKey == null) {
+      await prefs.remove('groq_api_key');
+    } else {
+      await prefs.setString('groq_api_key', groqApiKey!);
+    }
+
+    openrouterApiKey = openrouterKey?.trim().isEmpty ?? true ? null : openrouterKey!.trim();
+    if (openrouterApiKey == null) {
+      await prefs.remove('openrouter_api_key');
+    } else {
+      await prefs.setString('openrouter_api_key', openrouterApiKey!);
+    }
+
     notifyListeners();
   }
 

@@ -22,3 +22,13 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+extra["compileSdkVersion"] = 36
+extra["targetSdkVersion"] = 36
+extra["minSdkVersion"] = 21
+
+subprojects {
+    project.extra["compileSdkVersion"] = 36
+    project.extra["targetSdkVersion"] = 36
+    project.extra["minSdkVersion"] = 21
+}

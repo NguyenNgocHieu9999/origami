@@ -12,29 +12,101 @@ class AiCoachService {
     required OrigamiModel? model,
     required List<OrigamiStep> steps,
     required String? apiKey,
+    required String provider,
   }) async {
     final cleanQuestion = question.trim();
     if (cleanQuestion.isEmpty) {
       return 'Bạn hãy nhập bước đang bị kẹt hoặc điều muốn cải thiện, AI Coach sẽ gợi ý cách xử lý.';
     }
 
-    if (apiKey != null && apiKey.trim().isNotEmpty) {
-      try {
-        final answer = await _askGemini(
+    final cleanKey = apiKey?.trim() ?? '';
+    final activeProvider = (provider == 'pollinations' || cleanKey.isEmpty)
+        ? 'pollinations'
+        : provider;
+
+    Object? lastError;
+
+    try {
+      String answer = '';
+      if (activeProvider == 'pollinations') {
+        answer = await _askPollinations(
           question: cleanQuestion,
           model: model,
           steps: steps,
-          apiKey: apiKey.trim(),
         );
-        if (answer.trim().isNotEmpty) {
-          return answer.trim();
+      } else if (activeProvider == 'gemini') {
+        answer = await _askGemini(
+          question: cleanQuestion,
+          model: model,
+          steps: steps,
+          apiKey: cleanKey,
+        );
+      } else if (activeProvider == 'groq') {
+        answer = await _askGroq(
+          question: cleanQuestion,
+          model: model,
+          steps: steps,
+          apiKey: cleanKey,
+        );
+      } else if (activeProvider == 'openrouter') {
+        answer = await _askOpenRouter(
+          question: cleanQuestion,
+          model: model,
+          steps: steps,
+          apiKey: cleanKey,
+        );
+      }
+
+      if (answer.trim().isNotEmpty) {
+        return answer.trim();
+      }
+    } catch (e) {
+      lastError = e;
+      if (activeProvider != 'pollinations') {
+        try {
+          final fallbackAnswer = await _askPollinations(
+            question: cleanQuestion,
+            model: model,
+            steps: steps,
+          );
+          if (fallbackAnswer.trim().isNotEmpty) {
+            return '${fallbackAnswer.trim()}\n\n(Lưu ý: Không kết nối được tới $provider. Đang tự động phản hồi qua cấu hình dự phòng Pollinations AI)';
+          }
+        } catch (err) {
+          lastError = err;
         }
-      } catch (_) {
-        return '${_localAnswer(cleanQuestion, model, steps)}\n\nKhông gọi được AI online nên app đang dùng hướng dẫn cục bộ.';
       }
     }
 
-    return _localAnswer(cleanQuestion, model, steps);
+    final errorDetail = lastError != null ? '\n(Chi tiết lỗi: $lastError)' : '';
+    return '${_localAnswer(cleanQuestion, model, steps)}\n\nKhông gọi được AI online$errorDetail nên app đang dùng hướng dẫn cục bộ.';
+  }
+
+  Future<String> _askPollinations({
+    required String question,
+    required OrigamiModel? model,
+    required List<OrigamiStep> steps,
+  }) async {
+    final modelText = model == null
+        ? 'Chưa chọn mẫu cụ thể.'
+        : 'Mẫu: ${model.title}, độ khó ${model.difficulty}/4, thời gian ${model.minutes} phút.';
+    final stepText = steps
+        .map(
+          (step) =>
+              'Bước ${step.stepOrder}: ${step.title} - ${step.instruction}',
+        )
+        .join('\n');
+
+    final systemPrompt = 'Bạn là AI hướng dẫn gấp giấy origami cho sinh viên. Trả lời tiếng Việt, ngắn gọn, theo từng gạch đầu dòng thực hành được. '
+        '\n$modelText\nCác bước hiện có:\n$stepText';
+
+    final url = 'https://text.pollinations.ai/${Uri.encodeComponent(question)}?system=${Uri.encodeComponent(systemPrompt)}';
+    final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Pollinations request failed: ${response.statusCode}');
+    }
+    return response.body;
   }
 
   Future<String> _askGemini({
@@ -49,15 +121,7 @@ class AiCoachService {
       {'key': apiKey},
     );
 
-    final modelText = model == null
-        ? 'Chưa chọn mẫu cụ thể.'
-        : 'Mẫu: ${model.title}, độ khó ${model.difficulty}/4, thời gian ${model.minutes} phút.';
-    final stepText = steps
-        .map(
-          (step) =>
-              'Bước ${step.stepOrder}: ${step.title} - ${step.instruction}',
-        )
-        .join('\n');
+    final userPrompt = _buildPrompt(model, steps, question);
 
     final response = await http
         .post(
@@ -71,7 +135,7 @@ class AiCoachService {
                     'text':
                         'Bạn là AI hướng dẫn gấp giấy origami cho sinh viên. '
                         'Trả lời tiếng Việt, ngắn gọn, theo từng gạch đầu dòng thực hành được. '
-                        '$modelText\nCác bước hiện có:\n$stepText\nCâu hỏi: $question',
+                        '\n$userPrompt',
                   },
                 ],
               },
@@ -90,6 +154,91 @@ class AiCoachService {
         candidates?.firstOrNull?['content'] as Map<String, dynamic>?;
     final parts = content?['parts'] as List<dynamic>?;
     return (parts?.firstOrNull?['text'] as String?) ?? '';
+  }
+
+  Future<String> _askGroq({
+    required String question,
+    required OrigamiModel? model,
+    required List<OrigamiStep> steps,
+    required String apiKey,
+  }) async {
+    final uri = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+    final systemPrompt = 'Bạn là AI hướng dẫn gấp giấy origami cho sinh viên. Trả lời tiếng Việt, ngắn gọn, theo từng gạch đầu dòng thực hành được.';
+    final userPrompt = _buildPrompt(model, steps, question);
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode({
+        'model': 'llama-3.1-8b-instant',
+        'messages': [
+          {'role': 'system', 'content': systemPrompt},
+          {'role': 'user', 'content': userPrompt},
+        ],
+      }),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Groq request failed: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final choices = data['choices'] as List<dynamic>?;
+    final message = choices?.firstOrNull?['message'] as Map<String, dynamic>?;
+    return (message?['content'] as String?) ?? '';
+  }
+
+  Future<String> _askOpenRouter({
+    required String question,
+    required OrigamiModel? model,
+    required List<OrigamiStep> steps,
+    required String apiKey,
+  }) async {
+    final uri = Uri.parse('https://openrouter.ai/api/v1/chat/completions');
+    final systemPrompt = 'Bạn là AI hướng dẫn gấp giấy origami cho sinh viên. Trả lời tiếng Việt, ngắn gọn, theo từng gạch đầu dòng thực hành được.';
+    final userPrompt = _buildPrompt(model, steps, question);
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+        'HTTP-Referer': 'https://github.com/example/origami',
+        'X-Title': 'Origami Mentor',
+      },
+      body: jsonEncode({
+        'model': 'google/gemma-2-9b-it:free',
+        'messages': [
+          {'role': 'system', 'content': systemPrompt},
+          {'role': 'user', 'content': userPrompt},
+        ],
+      }),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('OpenRouter request failed: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final choices = data['choices'] as List<dynamic>?;
+    final message = choices?.firstOrNull?['message'] as Map<String, dynamic>?;
+    return (message?['content'] as String?) ?? '';
+  }
+
+  String _buildPrompt(OrigamiModel? model, List<OrigamiStep> steps, String question) {
+    final modelText = model == null
+        ? 'Chưa chọn mẫu cụ thể.'
+        : 'Mẫu: ${model.title}, độ khó ${model.difficulty}/4, thời gian ${model.minutes} phút.';
+    final stepText = steps
+        .map(
+          (step) =>
+              'Bước ${step.stepOrder}: ${step.title} - ${step.instruction}',
+        )
+        .join('\n');
+    return '$modelText\nCác bước hiện có:\n$stepText\nCâu hỏi: $question';
   }
 
   String _localAnswer(
